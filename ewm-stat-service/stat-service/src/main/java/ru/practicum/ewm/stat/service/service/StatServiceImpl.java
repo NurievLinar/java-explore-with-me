@@ -32,11 +32,11 @@ public class StatServiceImpl implements StatService {
             if (unique) {
                 stats = hitRepository.findAllUniqueIpWithoutUris(start, end);
             } else {
-                stats = hitRepository.findAllUniqueIpWithUris(uris, start, end);
+                stats = hitRepository.findAllWithoutUris(start, end);
             }
         } else {
             if (unique) {
-                stats = hitRepository.findAllWithoutUris(start, end);
+                stats = hitRepository.findAllUniqueIpWithUris(uris, start, end);
             } else {
                 stats = hitRepository.findAllWithUris(uris, start, end);
             }
