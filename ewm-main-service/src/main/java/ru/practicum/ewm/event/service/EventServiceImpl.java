@@ -18,7 +18,6 @@ import ru.practicum.ewm.location.model.Location;
 import ru.practicum.ewm.location.repository.LocationRepository;
 import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.stat.client.StatClient;
-import ru.practicum.ewm.stat.dto.HitDto;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
 
