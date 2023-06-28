@@ -24,14 +24,14 @@ services:
 
 
   ewm-service:
-    build: ewm-main-service
-#    image: main
-    container_name: main
+    build: ewm-main-service/main-service
+    image: main-service
+    container_name: main-service
     ports:
       - "8080:8080"
     depends_on:
-      - ewm-db
       - stat-service
+      - ewm-db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
       - SPRING_DATASOURCE_USER=user
