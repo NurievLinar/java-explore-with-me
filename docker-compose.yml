@@ -24,7 +24,7 @@ services:
 
 
   ewm-service:
-    build: ewm-main-service/main-service
+    build: ewm-main-service
     image: main-service
     container_name: main-service
     ports:
