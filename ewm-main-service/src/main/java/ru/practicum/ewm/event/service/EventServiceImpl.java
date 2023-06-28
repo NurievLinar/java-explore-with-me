@@ -104,7 +104,7 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> getEvents(String text, List<Long> categoryIds, Boolean paid, String rangeStart,
                                          String rangeEnd, Boolean onlyAvailable, String sort, int from, int size,
                                          HttpServletRequest httpServletRequest) {
-        addStat(httpServletRequest);
+        //addStat(httpServletRequest);
         List<EventShortDto> events = eventRepository.searchEvents(text, categoryIds, paid, PUBLISHED,
                         PageRequest.of(from / size, size))
                 .stream()
@@ -145,7 +145,7 @@ public class EventServiceImpl implements EventService {
         return events;
     }
 
-    private void addStat(HttpServletRequest httpServletRequest) {
+    /*private void addStat(HttpServletRequest httpServletRequest) {
         String app = "ewm-main-service";
         statClient.createHit(HitDto.builder()
                 .app(app)
@@ -153,13 +153,12 @@ public class EventServiceImpl implements EventService {
                 .ip(httpServletRequest.getRemoteAddr())
                 .timestamp(LocalDateTime.now())
                 .build());
-
-    }
+    }*/
 
     @Override
     @Transactional(readOnly = true)
     public EventFullDto getEventById(Long eventId, HttpServletRequest httpServletRequest) {
-        addStat(httpServletRequest);
+        //addStat(httpServletRequest);
         Event event = getEvent(eventId);
         if (!event.getState().equals(PUBLISHED)) {
             throw new BadRequestException("Событие должно быть опубликовано.");
