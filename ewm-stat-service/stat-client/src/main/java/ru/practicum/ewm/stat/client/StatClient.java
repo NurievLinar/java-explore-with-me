@@ -10,6 +10,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.stat.dto.HitDto;
+import ru.practicum.ewm.stat.dto.StatDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +34,7 @@ public class StatClient extends BaseClient {
         return post("/hit", hitDto);
     }
 
-    public List<HitDto> getStat(LocalDateTime start, LocalDateTime end, List<String> uries, boolean unique) {
+    public List<StatDto> getStat(String start, String end, List<String> uries, boolean unique) {
         Map<String, Object> parameters = Map.of(
                 "start", start,
                 "end", end,
@@ -43,8 +44,8 @@ public class StatClient extends BaseClient {
         ResponseEntity<Object> objectResponseEntity =
                 get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
 
-        List<HitDto> hitDto = new ObjectMapper().convertValue(objectResponseEntity.getBody(), new TypeReference<>() {
+        List<StatDto> statDto = new ObjectMapper().convertValue(objectResponseEntity.getBody(), new TypeReference<>() {
         });
-        return hitDto;
+        return statDto;
     }
 }
