@@ -12,7 +12,6 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.stat.dto.HitDto;
 import ru.practicum.ewm.stat.dto.StatDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
