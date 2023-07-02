@@ -13,7 +13,6 @@ services:
       - SPRING_DATASOURCE_USER=user
       - SPRING_DATASOURCE_PASSWORD=user
 
-
   stat-db:
     image: postgres:14-alpine
     container_name: stat-db
@@ -22,11 +21,10 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=user
 
-
   ewm-service:
     build: ewm-main-service
-#    image: main
-    container_name: main
+    image: main-service
+    container_name: main-service
     ports:
       - "8080:8080"
     depends_on:
@@ -36,10 +34,13 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
       - SPRING_DATASOURCE_USER=user
       - SPRING_DATASOURCE_PASSWORD=user
+      - stat-service.url=http://stat-service:9090
 
   ewm-db:
     image: postgres:14-alpine
-    container_name: ewm-postgres-container
+    container_name: ewm-main-service-db
+    ports:
+      - "6542:5432"
     environment:
       - POSTGRES_DB=ewm
       - POSTGRES_USER=user
