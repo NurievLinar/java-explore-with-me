@@ -29,7 +29,7 @@ public class PrivateEventsController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto createEvent(@PathVariable Long userId,
                                     @RequestBody @Valid NewEventDto dto) {
-        log.info("Create Event from userId {}, dto {}", userId, dto);
+        log.info("Сохранение события.");
         return service.createEvent(userId, dto);
     }
 
@@ -37,14 +37,14 @@ public class PrivateEventsController {
     public List<EventsShortDto> getEventsFromUser(@PathVariable Long userId,
                                                   @RequestParam(required = false, defaultValue = "0") Integer from,
                                                   @RequestParam(required = false, defaultValue = "10") Integer size) {
-        log.info("Get Events from userId {}, from {}, size{}", userId, from, size);
+        log.info("Получение событий.");
         return service.getEventsFromUser(userId, from, size);
     }
 
     @GetMapping("/{eventId}")
     public EventFullDto getEventWithOwner(@PathVariable Long userId,
                                           @PathVariable Long eventId) {
-        log.info("Get Event with eventId {} from userId {}", eventId, userId);
+        log.info("Получение события.");
         return service.getEventWithOwner(userId, eventId);
     }
 
@@ -52,14 +52,14 @@ public class PrivateEventsController {
     public EventFullDto updateEvent(@PathVariable Long userId,
                                     @PathVariable Long eventId,
                                     @RequestBody @Valid UpdateEvent dto) {
-        log.info("Update Event with eventId {} from userId {}, dto {}", eventId, userId, dto);
+        log.info("Изменение события.");
         return service.updateEvent(userId, eventId, dto);
     }
 
     @GetMapping("/{eventId}/requests")
     public List<ParticipationRequestDto> getRequestsForUserForThisEvent(@PathVariable Long userId,
                                                                         @PathVariable Long eventId) {
-        log.info("Get Requests for userId {}, for eventId {}", userId, eventId);
+        log.info("Получение запроса на участие в событии.");
         return service.getRequestsForUserForThisEvent(userId, eventId);
     }
 
@@ -67,7 +67,7 @@ public class PrivateEventsController {
     public EventRequestStatusUpdateResult changeRequestsStatus(@PathVariable Long userId,
                                                                @PathVariable Long eventId,
                                                                @RequestBody EventRequestStatusUpdateRequest dto) {
-        log.info("Change Requests status with userId {}, eventId {}, dto {} ", userId, eventId, dto);
+        log.info("Изменение статуса заявки.");
         return service.changeRequestsStatus(userId, eventId, dto);
     }
 

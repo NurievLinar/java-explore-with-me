@@ -31,7 +31,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.UtilityClass;
 import ru.practicum.ewm.stat.client.StatClient;
 import ru.practicum.ewm.stat.dto.HitDto;
 import ru.practicum.ewm.stat.dto.StatDto;
@@ -42,6 +41,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
+import static ru.practicum.ewm.event.mapper.EventMapper.toEvent;
+import static ru.practicum.ewm.event.mapper.EventMapper.toEventFullDto;
+import static ru.practicum.ewm.request.mapper.RequestMapper.toRequestDto;
+import static ru.practicum.ewm.UtilityClass.formatter;
 
 @Service
 @Transactional(readOnly = true)
@@ -55,7 +58,6 @@ public class EventsServiceImpl implements EventsService {
     private final RequestRepository requestRepository;
     private final StatClient statClient;
 
-    @Override
     @Transactional
     public EventFullDto createEvent(Long userId, NewEventDto dto) {
         if (dto.getPaid() == null) {
@@ -73,11 +75,10 @@ public class EventsServiceImpl implements EventsService {
                 .orElseThrow(() -> new NotFoundException("Категория с таким id  не найдена"));
         User user = getUserModel(userId);
         locationRepository.save(dto.getLocation());
-        Event event = EventMapper.toEvent(dto, category, user, nowDateTime);
-        return EventMapper.toEventFullDto(eventRepository.save(event), 0L);
+        Event event = toEvent(dto, category, user, nowDateTime);
+        return toEventFullDto(eventRepository.save(event), 0L);
     }
 
-    @Override
     public List<EventsShortDto> getEventsFromUser(Long userId, Integer from, Integer size) {
         PageRequest page = PageRequest.of(from, size);
         User user = getUserModel(userId);
@@ -89,7 +90,6 @@ public class EventsServiceImpl implements EventsService {
                 .collect(Collectors.toList());
     }
 
-    @Override
     public EventFullDto getEventWithOwner(Long userId, Long eventId) {
         checkUser(userId);
         Event event = findEventById(eventId);
@@ -99,7 +99,6 @@ public class EventsServiceImpl implements EventsService {
         return eventFullDto;
     }
 
-    @Override
     @Transactional
     public EventFullDto updateEvent(Long userId, Long eventId, UpdateEvent dto) {
         Event event = findEventById(eventId);
@@ -125,7 +124,6 @@ public class EventsServiceImpl implements EventsService {
         return getEventFullDto(dto, event);
     }
 
-    @Override
     public List<EventFullDto> getEventsForAdmin(List<Long> users, List<String> states, List<Long> categories,
                                                 LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
         PageRequest page = PageRequest.of(from, size);
@@ -151,7 +149,6 @@ public class EventsServiceImpl implements EventsService {
                 .collect(Collectors.toList());
     }
 
-    @Override
     @Transactional
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEvent dto) {
         Event event = findEventById(eventId);
@@ -193,7 +190,6 @@ public class EventsServiceImpl implements EventsService {
         return getEventFullDto(dto, event);
     }
 
-    @Override
     public List<EventsShortDto> getEventsWithFilters(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                                      LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from,
                                                      Integer size, HttpServletRequest request) {
@@ -261,7 +257,6 @@ public class EventsServiceImpl implements EventsService {
                 .collect(Collectors.toList());
     }
 
-    @Override
     public EventFullDto getEventWithFullInfoById(Long id, HttpServletRequest request) {
         Event event = findEventById(id);
         if (!event.getState().equals(State.PUBLISHED)) {
@@ -302,29 +297,25 @@ public class EventsServiceImpl implements EventsService {
                         .orElseThrow(() -> new NotFoundException("Запрос не найден."));
                 if (request.getStatus().equals(State.PENDING)) {
                     request.setStatus(State.REJECTED);
-                    rejectedRequests.add(RequestMapper.toRequestDto(request));
+                    rejectedRequests.add(toRequestDto(request));
                 }
             }
         }
         for (int i = 0; i < dto.getRequestIds().size(); i++) {
+            Request request = requestRepository.findById(dto.getRequestIds().get(i))
+                    .orElseThrow(() -> new NotFoundException("Запрос не найден."));
             if (limitBalance != 0) {
-                int finalI1 = i;
-                Request request = requestRepository.findById(dto.getRequestIds().get(i))
-                        .orElseThrow(() -> new NotFoundException("Запрос не найден."));
                 if (request.getStatus().equals(State.PENDING)) {
                     request.setStatus(State.CONFIRMED);
                     event.setConfirmedRequests(event.getConfirmedRequests() + 1);
                     eventRepository.save(event);
-                    confirmedRequests.add(RequestMapper.toRequestDto(request));
+                    confirmedRequests.add(toRequestDto(request));
                     limitBalance--;
                 }
             } else {
-                int finalI = i;
-                Request request = requestRepository.findById(dto.getRequestIds().get(i))
-                        .orElseThrow(() -> new NotFoundException("Запрос не найден."));
                 if (request.getStatus().equals(State.PENDING)) {
                     request.setStatus(State.REJECTED);
-                    rejectedRequests.add(RequestMapper.toRequestDto(request));
+                    rejectedRequests.add(toRequestDto(request));
                 }
             }
         }
@@ -357,8 +348,8 @@ public class EventsServiceImpl implements EventsService {
         List<Long> idEvents = events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList());
-        String start = LocalDateTime.now().minusYears(100).format(UtilityClass.formatter);
-        String end = LocalDateTime.now().format(UtilityClass.formatter);
+        String start = LocalDateTime.now().minusYears(100).format(formatter);
+        String end = LocalDateTime.now().format(formatter);
         String eventsUri = "/events/";
         List<String> uris = idEvents.stream().map(id -> eventsUri + id).collect(Collectors.toList());
         List<StatDto> viewStatDto = statClient.getStat(start, end, uris, true);
