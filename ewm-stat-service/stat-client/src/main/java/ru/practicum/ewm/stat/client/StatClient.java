@@ -23,7 +23,7 @@ public class StatClient extends BaseClient {
     public StatClient(@Value("${stat-service.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
+                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
                         .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build()
         );
@@ -33,16 +33,15 @@ public class StatClient extends BaseClient {
         return post("/hit", hitDto);
     }
 
-    public List<StatDto> getStat(String start, String end, List<String> uries, boolean unique) {
+    public List<StatDto> getStat(String start, String end, List<String> uris, boolean unique) {
         Map<String, Object> parameters = Map.of(
                 "start", start,
                 "end", end,
-                "uris", uries,
+                "uris", String.join(",", uris),
                 "unique", unique
         );
         ResponseEntity<Object> objectResponseEntity =
                 get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
-
         List<StatDto> statDto = new ObjectMapper().convertValue(objectResponseEntity.getBody(), new TypeReference<>() {
         });
         return statDto;
