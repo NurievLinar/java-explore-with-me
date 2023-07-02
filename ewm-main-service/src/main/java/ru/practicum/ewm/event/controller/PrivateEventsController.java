@@ -1,5 +1,10 @@
 package ru.practicum.ewm.event.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.EventsShortDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
@@ -8,11 +13,6 @@ import ru.practicum.ewm.event.service.EventsService;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;

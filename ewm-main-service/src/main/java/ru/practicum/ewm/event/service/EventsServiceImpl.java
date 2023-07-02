@@ -1,5 +1,10 @@
 package ru.practicum.ewm.event.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.EventFullDto;
@@ -26,11 +31,6 @@ import ru.practicum.ewm.request.model.Request;
 import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.stat.client.StatClient;
 import ru.practicum.ewm.stat.dto.HitDto;
 import ru.practicum.ewm.stat.dto.StatDto;
@@ -49,7 +49,7 @@ import static ru.practicum.ewm.UtilityClass.formatter;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@ComponentScan(basePackages = {"ru.practicum.client"})
+@ComponentScan(basePackages = {"ru.practicum.ewm.stat.client"})
 public class EventsServiceImpl implements EventsService {
     private final EventsRepository eventRepository;
     private final CategoryRepository categoryRepository;
