@@ -16,7 +16,9 @@ import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventsRepository;
 import ru.practicum.ewm.exception.NotFoundException;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
@@ -38,7 +40,7 @@ public class CompilationServiceImpl implements CompilationService {
         if (dto.getEvents() != null && !dto.getEvents().isEmpty()) {
             events = eventsRepository.findAllByIdIn(dto.getEvents());
         }
-        Compilation compilation = CompilationMapper.toCompilation(dto,events);
+        Compilation compilation = CompilationMapper.toCompilation(dto, events);
         return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
     }
 

@@ -292,20 +292,25 @@ public class EventsServiceImpl implements EventsService {
 
         checkUser(userId);
         Event event = findEventById(eventId);
+
         List<Request> requests = requestRepository.findAllById(dto.getRequestIds());
+
         EventRequestStatusUpdateResult eventRequestStatusUpdateResult = EventRequestStatusUpdateResult.builder().build();
+
         List<ParticipationRequestDto> confirmedList = new ArrayList<>();
         List<ParticipationRequestDto> rejectedList = new ArrayList<>();
+
         if (requests.isEmpty()) {
             return eventRequestStatusUpdateResult;
         }
+
         if (!requests.stream()
                 .map(Request::getStatus)
                 .allMatch(State.PENDING::equals)) {
-            throw new ConflictException("Only requests that are pending can be changed.");
+            throw new ConflictException("Подтверждение заявок не требуется");
         }
         if (requests.size() != dto.getRequestIds().size()) {
-            throw new ConflictException("Some requests not found.");
+            throw new ConflictException("Запрос не найден.");
         }
         long limitParticipants = event.getParticipantLimit();
         if (limitParticipants == 0 || !event.getRequestModeration()) {
@@ -313,7 +318,7 @@ public class EventsServiceImpl implements EventsService {
         }
         Long countParticipants = requestRepository.countByEventIdAndStatus(event.getId(), State.CONFIRMED);
         if (countParticipants >= limitParticipants) {
-            throw new ConflictException("The participant limit has been reached.");
+            throw new ConflictException("У события достигнут лимит запросов.");
         }
         if (State.REJECTED.toString().equals(dto.getStatus())) {
             for (Request request : requests) {
@@ -325,6 +330,8 @@ public class EventsServiceImpl implements EventsService {
             for (Request request : requests) {
                 if (countParticipants < limitParticipants) {
                     request.setStatus(State.CONFIRMED);
+                    event.setConfirmedRequests(event.getConfirmedRequests() + ONE);
+                    eventRepository.save(event);
                     confirmedList.add(toRequestDto(request));
                     countParticipants++;
                 } else {

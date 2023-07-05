@@ -60,4 +60,11 @@ public class ErrorHandler {
         log.warn("400 {}", exception.getMessage());
         return new ErrorResponse(exception.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleRuntimeException(RuntimeException exception) {
+        log.debug("Получен статус 500 INTERNAL_SERVER_ERROR {}", exception.getMessage(), exception);
+        return new ErrorResponse(exception.getMessage());
+    }
 }
