@@ -11,6 +11,7 @@ import ru.practicum.ewm.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface EventsRepository extends JpaRepository<Event, Long> {
 
@@ -98,4 +99,6 @@ public interface EventsRepository extends JpaRepository<Event, Long> {
                                         @Param("rangeStart") LocalDateTime rangeStart,
                                         @Param("rangeEnd") LocalDateTime rangeEnd,
                                         Pageable pageable);
+
+    Set<Event> findAllByIdIn(Set<Long> events);
 }

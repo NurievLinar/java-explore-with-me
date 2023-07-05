@@ -58,6 +58,11 @@ public class EventsServiceImpl implements EventsService {
     private final RequestRepository requestRepository;
     private final StatClient statClient;
 
+    private static final int HUNDRED = 100;
+    private static final int TWO_HOURS = 2;
+    private static final int ONE = 1;
+
+
     @Transactional
     public EventFullDto createEvent(Long userId, NewEventDto dto) {
         if (dto.getPaid() == null) {
@@ -106,7 +111,7 @@ public class EventsServiceImpl implements EventsService {
         if (dto.getEventDate() != null) {
             checkDateTimeForDto(LocalDateTime.now(), dto.getEventDate());
         }
-        if (!(event.getState().equals(State.CANCELED) || event.getState().equals(State.PENDING))) {
+        if (!(State.CANCELED.equals(event.getState()) || State.PENDING.equals(event.getState()))) {
             throw new IncorrectStateException("Некорректный статус.");
         }
         if (dto.getStateAction() != null) {
@@ -153,22 +158,22 @@ public class EventsServiceImpl implements EventsService {
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEvent dto) {
         Event event = findEventById(eventId);
         if (dto.getEventDate() != null) {
-            if (LocalDateTime.now().plusHours(1).isAfter(dto.getEventDate())) {
+            if (LocalDateTime.now().plusHours(ONE).isAfter(dto.getEventDate())) {
                 throw new BadRequestException("Ошибка. Дата и время на которые намечено событие " +
                         "не может быть раньше, чем через час от текущего момента");
             }
         } else {
             if (dto.getStateAction() != null) {
-                if (dto.getStateAction().equals(StateAction.PUBLISH_EVENT) &&
-                        LocalDateTime.now().plusHours(1).isAfter(event.getEventDate())) {
+                if (StateAction.PUBLISH_EVENT.equals(dto.getStateAction()) &&
+                        LocalDateTime.now().plusHours(ONE).isAfter(event.getEventDate())) {
                     throw new IncorrectStateException("Ошибка. Дата и время публикуемого события " +
                             "не может быть раньше, чем через час от текущего момента");
                 }
-                if (dto.getStateAction().equals(StateAction.PUBLISH_EVENT) && !(event.getState().equals(State.PENDING))) {
+                if (StateAction.PUBLISH_EVENT.equals(dto.getStateAction()) && !(State.PENDING.equals(event.getState()))) {
                     throw new IncorrectStateException("Некорректный статус. Событие можно публиковать, " +
                             "только если оно в состоянии ожидания публикации.");
                 }
-                if (dto.getStateAction().equals(StateAction.REJECT_EVENT) && event.getState().equals(State.PUBLISHED)) {
+                if (StateAction.REJECT_EVENT.equals(dto.getStateAction()) && State.PUBLISHED.equals(event.getState())) {
                     throw new IncorrectStateException("Некорректный статус. Событие можно отклонить, " +
                             "только если оно еще не опубликовано.");
                 }
@@ -221,6 +226,8 @@ public class EventsServiceImpl implements EventsService {
                                 .sorted(Comparator.comparing(EventsShortDto::getViews))
                                 .peek(e -> e.setViews(hits3.get(e.getId())))
                                 .collect(Collectors.toList());
+                    default:
+                        break;
                 }
             }
         } else {
@@ -246,6 +253,8 @@ public class EventsServiceImpl implements EventsService {
                                 .sorted(Comparator.comparing(EventsShortDto::getViews))
                                 .peek(e -> e.setViews(hits.get(e.getId())))
                                 .collect(Collectors.toList());
+                    default:
+                        break;
                 }
             }
         }
@@ -259,7 +268,7 @@ public class EventsServiceImpl implements EventsService {
 
     public EventFullDto getEventWithFullInfoById(Long id, HttpServletRequest request) {
         Event event = findEventById(id);
-        if (!event.getState().equals(State.PUBLISHED)) {
+        if (!State.PUBLISHED.equals(event.getState())) {
             throw new NotFoundException("Событие еще не опубликовано");
         }
         addStatistic(request);
@@ -280,49 +289,54 @@ public class EventsServiceImpl implements EventsService {
 
     @Transactional
     public EventRequestStatusUpdateResult changeRequestsStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest dto) {
-        List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
-        List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
+
         checkUser(userId);
         Event event = findEventById(eventId);
-        if (!event.getRequestModeration() || event.getParticipantLimit().equals(0L)) {
-            throw new ConflictException("Подтверждение заявок не требуется");
+        List<Request> requests = requestRepository.findAllById(dto.getRequestIds());
+        EventRequestStatusUpdateResult eventRequestStatusUpdateResult = EventRequestStatusUpdateResult.builder().build();
+        List<ParticipationRequestDto> confirmedList = new ArrayList<>();
+        List<ParticipationRequestDto> rejectedList = new ArrayList<>();
+        if (requests.isEmpty()) {
+            return eventRequestStatusUpdateResult;
         }
-        long limitBalance = event.getParticipantLimit() - event.getConfirmedRequests();
-        if (event.getParticipantLimit() != 0 && limitBalance <= 0) {
-            throw new ConflictException("У события достигнут лимит запросов.");
+        if (!requests.stream()
+                .map(Request::getStatus)
+                .allMatch(State.PENDING::equals)) {
+            throw new ConflictException("Only requests that are pending can be changed.");
         }
-        if (dto.getStatus().equals(State.REJECTED.toString())) {
-            for (Long requestId : dto.getRequestIds()) {
-                Request request = requestRepository.findById(requestId)
-                        .orElseThrow(() -> new NotFoundException("Запрос не найден."));
-                if (request.getStatus().equals(State.PENDING)) {
-                    request.setStatus(State.REJECTED);
-                    rejectedRequests.add(toRequestDto(request));
-                }
+        if (requests.size() != dto.getRequestIds().size()) {
+            throw new ConflictException("Some requests not found.");
+        }
+        long limitParticipants = event.getParticipantLimit();
+        if (limitParticipants == 0 || !event.getRequestModeration()) {
+            return eventRequestStatusUpdateResult;
+        }
+        Long countParticipants = requestRepository.countByEventIdAndStatus(event.getId(), State.CONFIRMED);
+        if (countParticipants >= limitParticipants) {
+            throw new ConflictException("The participant limit has been reached.");
+        }
+        if (State.REJECTED.toString().equals(dto.getStatus())) {
+            for (Request request : requests) {
+                request.setStatus(State.REJECTED);
+                rejectedList.add(toRequestDto(request));
             }
-        }
-        for (int i = 0; i < dto.getRequestIds().size(); i++) {
-            Request request = requestRepository.findById(dto.getRequestIds().get(i))
-                    .orElseThrow(() -> new NotFoundException("Запрос не найден."));
-            if (limitBalance != 0) {
-                if (request.getStatus().equals(State.PENDING)) {
+            eventRequestStatusUpdateResult.setRejectedRequests(rejectedList);
+        } else {
+            for (Request request : requests) {
+                if (countParticipants < limitParticipants) {
                     request.setStatus(State.CONFIRMED);
-                    event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                    eventRepository.save(event);
-                    confirmedRequests.add(toRequestDto(request));
-                    limitBalance--;
-                }
-            } else {
-                if (request.getStatus().equals(State.PENDING)) {
+                    confirmedList.add(toRequestDto(request));
+                    countParticipants++;
+                } else {
                     request.setStatus(State.REJECTED);
-                    rejectedRequests.add(toRequestDto(request));
+                    rejectedList.add(toRequestDto(request));
                 }
+                eventRequestStatusUpdateResult.setConfirmedRequests(confirmedList);
+                eventRequestStatusUpdateResult.setRejectedRequests(rejectedList);
             }
         }
-        return EventRequestStatusUpdateResult.builder()
-                .confirmedRequests(confirmedRequests)
-                .rejectedRequests(rejectedRequests)
-                .build();
+        requestRepository.saveAll(requests);
+        return eventRequestStatusUpdateResult;
     }
 
     private void addStatistic(HttpServletRequest request) {
@@ -348,7 +362,7 @@ public class EventsServiceImpl implements EventsService {
         List<Long> idEvents = events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList());
-        String start = LocalDateTime.now().minusYears(100).format(formatter);
+        String start = LocalDateTime.now().minusYears(HUNDRED).format(formatter);
         String end = LocalDateTime.now().format(formatter);
         String eventsUri = "/events/";
         List<String> uris = idEvents.stream().map(id -> eventsUri + id).collect(Collectors.toList());
@@ -363,7 +377,7 @@ public class EventsServiceImpl implements EventsService {
 
     private void checkDateTime(LocalDateTime start, LocalDateTime end) {
         if (start == null) {
-            start = LocalDateTime.now().minusYears(100);
+            start = LocalDateTime.now().minusYears(HUNDRED);
         }
         if (end == null) {
             end = LocalDateTime.now();
@@ -395,7 +409,7 @@ public class EventsServiceImpl implements EventsService {
     }
 
     private void checkDateTimeForDto(LocalDateTime nowDateTime, LocalDateTime dtoDateTime) {
-        if (nowDateTime.plusHours(2).isAfter(dtoDateTime)) {
+        if (nowDateTime.plusHours(TWO_HOURS).isAfter(dtoDateTime)) {
             throw new BadRequestException("Ошибка даты и времени");
         }
     }

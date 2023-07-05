@@ -35,4 +35,5 @@ public interface EventsService {
                                               Integer size, HttpServletRequest request);
 
     EventFullDto getEventWithFullInfoById(Long id, HttpServletRequest request);
+
 }

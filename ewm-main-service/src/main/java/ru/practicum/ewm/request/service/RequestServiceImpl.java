@@ -38,10 +38,10 @@ public class RequestServiceImpl implements RequestService {
         User user = checkUser(userId);
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие не найдено."));
-        if (event.getInitiator().getId().equals(userId)) {
+        if (userId.equals(event.getInitiator().getId())) {
             throw new ConflictException("Инициатор не может добавить запрос.");
         }
-        if (event.getState().equals(State.PENDING) || event.getState().equals(State.CANCELED)) {
+        if (State.PENDING.equals(event.getState()) || State.CANCELED.equals(event.getState())) {
             throw new ConflictException("Невозможно участвовать в неопубликованном событии.");
         }
         if (event.getParticipantLimit() != 0 && event.getParticipantLimit() <= event.getConfirmedRequests())

@@ -59,10 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
             return toCategoryDto(categoryRepository.save(category));
         } catch (DataIntegrityViolationException e) {
             throw new IncorrectStateException("Имя должно быть уникальным");
-        } catch (Exception e) {
-            throw new BadRequestException("Некорректный запрос");
         }
-
     }
 
     public List<CategoryDto> getCategories(Integer from, Integer size) {

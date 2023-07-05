@@ -35,17 +35,12 @@ public class CompilationServiceImpl implements CompilationService {
         if (dto.getPinned() == null) {
             dto.setPinned(false);
         }
-        Compilation compilation;
-        Set<Event> eventList = new HashSet<>();
-        List<EventsShortDto> eventsShortDtos = Optional.ofNullable(dto.getEvents())
-                .map(eventsRepository::findAllById)
-                .stream()
-                .flatMap(Collection::stream)
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
-        compilation = toCompilation(dto, eventList);
-        Compilation newCompilation = compilationRepository.save(compilation);
-        return toCompilationDto(newCompilation, eventsShortDtos);
+        Set<Event> events = new HashSet<>();
+        if (dto.getEvents() != null && !dto.getEvents().isEmpty()) {
+            events = eventsRepository.findAllByIdIn(dto.getEvents());
+        }
+        Compilation compilation = CompilationMapper.toCompilation(dto,events);
+        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
     }
 
     @Transactional
