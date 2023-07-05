@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
-import static ru.practicum.ewm.compilation.mapper.CompilationMapper.toCompilation;
 import static ru.practicum.ewm.compilation.mapper.CompilationMapper.toCompilationDto;
 
 @Service

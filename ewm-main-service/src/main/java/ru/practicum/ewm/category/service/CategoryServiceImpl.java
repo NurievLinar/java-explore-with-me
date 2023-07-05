@@ -12,7 +12,6 @@ import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventsRepository;
-import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.IncorrectStateException;
 import ru.practicum.ewm.exception.NotFoundException;
@@ -86,5 +85,4 @@ public class CategoryServiceImpl implements CategoryService {
             throw new IncorrectStateException("Имя должно быть уникальным");
         }
     }
-
 }
