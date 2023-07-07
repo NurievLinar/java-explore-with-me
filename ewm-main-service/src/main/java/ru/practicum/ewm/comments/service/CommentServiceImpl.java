@@ -24,7 +24,7 @@ import static ru.practicum.ewm.comments.mapper.CommentMapper.*;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class CommentServiceImpl implements CommentService{
+public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
