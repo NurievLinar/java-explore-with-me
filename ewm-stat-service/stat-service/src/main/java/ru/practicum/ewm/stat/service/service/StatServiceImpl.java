@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.stat.dto.HitDto;
 import ru.practicum.ewm.stat.dto.StatDto;
+import ru.practicum.ewm.stat.service.exception.StartEndRangeException;
 import ru.practicum.ewm.stat.service.mapper.HitMapper;
 import ru.practicum.ewm.stat.service.model.Hit;
 import ru.practicum.ewm.stat.service.repository.HitRepository;
@@ -27,6 +28,7 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<StatDto> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        checkDate(start, end);
         List<StatDto> stats;
         if (uris == null || uris.isEmpty()) {
             if (unique) {
@@ -42,5 +44,14 @@ public class StatServiceImpl implements StatService {
             }
         }
         return stats;
+    }
+
+    private void checkDate(LocalDateTime startTime, LocalDateTime endTime) {
+        if (startTime == null || endTime == null) {
+            throw new StartEndRangeException("Ошибка времени начала и конца диапазона");
+        }
+        if (startTime.isAfter(endTime)) {
+            throw new StartEndRangeException("Ошибка времени начала и конца диапазона");
+        }
     }
 }

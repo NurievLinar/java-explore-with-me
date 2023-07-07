@@ -10,20 +10,19 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.stat.dto.HitDto;
+import ru.practicum.ewm.stat.dto.StatDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class StatClient extends BaseClient {
-    private static final String API_PREFIX = "/hit";
 
     @Autowired
     public StatClient(@Value("${stat-service.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
+                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
                         .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build()
         );
@@ -33,18 +32,17 @@ public class StatClient extends BaseClient {
         return post("/hit", hitDto);
     }
 
-    public List<HitDto> getStat(LocalDateTime start, LocalDateTime end, List<String> uries, boolean unique) {
+    public List<StatDto> getStat(String start, String end, List<String> uris, boolean unique) {
         Map<String, Object> parameters = Map.of(
                 "start", start,
                 "end", end,
-                "uris", uries,
+                "uris", String.join(",", uris),
                 "unique", unique
         );
         ResponseEntity<Object> objectResponseEntity =
                 get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
-
-        List<HitDto> hitDto = new ObjectMapper().convertValue(objectResponseEntity.getBody(), new TypeReference<>() {
+        List<StatDto> statDto = new ObjectMapper().convertValue(objectResponseEntity.getBody(), new TypeReference<>() {
         });
-        return hitDto;
+        return statDto;
     }
 }
