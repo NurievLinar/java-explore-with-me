@@ -214,7 +214,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/users/1/events",
+					"raw": "http://localhost:8080/users/136/events",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -222,7 +222,7 @@
 					"port": "8080",
 					"path": [
 						"users",
-						"1",
+						"136",
 						"events"
 					]
 				}
@@ -271,7 +271,7 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1",
+							"value": "106",
 							"description": "id event"
 						}
 					]
@@ -334,12 +334,12 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2",
+							"value": "137",
 							"description": "id user2"
 						},
 						{
 							"key": "eventId",
-							"value": "1",
+							"value": "106",
 							"description": "id event"
 						}
 					]
@@ -385,7 +385,7 @@
 					"port": "8080",
 					"path": [
 						"users",
-						"1",
+						"136",
 						"events"
 					]
 				}
@@ -435,12 +435,12 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2",
+							"value": "137",
 							"description": "id user2"
 						},
 						{
 							"key": "eventId",
-							"value": "2",
+							"value": "107",
 							"description": "id event2"
 						}
 					]
@@ -496,7 +496,7 @@
 						},
 						{
 							"key": "eventId",
-							"value": "1",
+							"value": "107",
 							"description": "id event"
 						}
 					]
@@ -547,12 +547,12 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2",
+							"value": "137",
 							"description": "id user2"
 						},
 						{
 							"key": "eventId",
-							"value": "70",
+							"value": "300",
 							"description": "event id 70"
 						}
 					]
@@ -615,7 +615,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2",
+							"value": "137",
 							"description": "id user2"
 						},
 						{
