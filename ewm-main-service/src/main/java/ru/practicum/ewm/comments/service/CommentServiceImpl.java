@@ -22,7 +22,7 @@ import java.util.Objects;
 import static ru.practicum.ewm.comments.mapper.CommentMapper.*;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 

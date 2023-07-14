@@ -58,10 +58,9 @@ public class EventsServiceImpl implements EventsService {
     private final RequestRepository requestRepository;
     private final StatClient statClient;
 
-    private static final int HUNDRED = 100;
+    private static final int HUNDRED_YEARS = 100;
     private static final int TWO_HOURS = 2;
-    private static final int ONE = 1;
-
+    private static final int ONE_HOURS = 1;
 
     @Transactional
     public EventFullDto createEvent(Long userId, NewEventDto dto) {
@@ -158,14 +157,14 @@ public class EventsServiceImpl implements EventsService {
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEvent dto) {
         Event event = findEventById(eventId);
         if (dto.getEventDate() != null) {
-            if (LocalDateTime.now().plusHours(ONE).isAfter(dto.getEventDate())) {
+            if (LocalDateTime.now().plusHours(ONE_HOURS).isAfter(dto.getEventDate())) {
                 throw new BadRequestException("Ошибка. Дата и время на которые намечено событие " +
                         "не может быть раньше, чем через час от текущего момента");
             }
         } else {
             if (dto.getStateAction() != null) {
                 if (StateAction.PUBLISH_EVENT.equals(dto.getStateAction()) &&
-                        LocalDateTime.now().plusHours(ONE).isAfter(event.getEventDate())) {
+                        LocalDateTime.now().plusHours(ONE_HOURS).isAfter(event.getEventDate())) {
                     throw new IncorrectStateException("Ошибка. Дата и время публикуемого события " +
                             "не может быть раньше, чем через час от текущего момента");
                 }
@@ -330,7 +329,7 @@ public class EventsServiceImpl implements EventsService {
             for (Request request : requests) {
                 if (countParticipants < limitParticipants) {
                     request.setStatus(State.CONFIRMED);
-                    event.setConfirmedRequests(event.getConfirmedRequests() + ONE);
+                    event.setConfirmedRequests(event.getConfirmedRequests() + ONE_HOURS);
                     eventRepository.save(event);
                     confirmedList.add(toRequestDto(request));
                     countParticipants++;
@@ -369,7 +368,7 @@ public class EventsServiceImpl implements EventsService {
         List<Long> idEvents = events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList());
-        String start = LocalDateTime.now().minusYears(HUNDRED).format(formatter);
+        String start = LocalDateTime.now().minusYears(HUNDRED_YEARS).format(formatter);
         String end = LocalDateTime.now().format(formatter);
         String eventsUri = "/events/";
         List<String> uris = idEvents.stream().map(id -> eventsUri + id).collect(Collectors.toList());
@@ -384,7 +383,7 @@ public class EventsServiceImpl implements EventsService {
 
     private void checkDateTime(LocalDateTime start, LocalDateTime end) {
         if (start == null) {
-            start = LocalDateTime.now().minusYears(HUNDRED);
+            start = LocalDateTime.now().minusYears(HUNDRED_YEARS);
         }
         if (end == null) {
             end = LocalDateTime.now();
