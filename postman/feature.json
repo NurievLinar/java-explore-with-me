@@ -733,7 +733,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2",
+							"value": "137",
 							"description": "id user2"
 						}
 					]
@@ -790,7 +790,7 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1",
+							"value": "106",
 							"description": "id event"
 						}
 					]
@@ -982,7 +982,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2",
+							"value": "137",
 							"description": "id user2"
 						},
 						{
@@ -1050,12 +1050,12 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2",
+							"value": "137",
 							"description": "id user2"
 						},
 						{
 							"key": "eventId",
-							"value": "1",
+							"value": "106",
 							"description": "id event"
 						}
 					]
